@@ -1,0 +1,336 @@
+# Multi-Modal Evidence Review
+
+## Overview
+
+This project implements an automated evidence verification system for damage claims. The system analyzes submitted images, user conversations, historical claim patterns, and evidence requirements to determine whether a claim is supported, contradicted, or cannot be evaluated due to insufficient information.
+
+The solution processes claims involving three object categories:
+
+* Car
+* Laptop
+* Package
+
+Images are treated as the primary source of truth. User history is used only as supplementary risk context and does not override clear visual evidence.
+
+---
+
+## Features
+
+### Claim Understanding
+
+Extracts the actual damage claim from user conversations.
+
+Examples:
+
+* Dent on front bumper
+* Cracked laptop screen
+* Torn package seal
+
+### Image Analysis
+
+Inspects one or more submitted images to determine:
+
+* Visible damage type
+* Affected object part
+* Damage severity
+* Image quality
+
+### Evidence Validation
+
+Checks whether the submitted images satisfy the minimum evidence requirements defined in:
+
+```text
+dataset/evidence_requirements.csv
+```
+
+Examples:
+
+* Multiple angles required
+* Entire object visibility required
+* Damage close-up required
+
+### Risk Assessment
+
+Incorporates historical user behavior from:
+
+```text
+dataset/user_history.csv
+```
+
+Possible risk indicators:
+
+* Frequent rejected claims
+* High recent claim volume
+* Manual review history
+
+### Decision Engine
+
+Produces one of three outcomes:
+
+* supported
+* contradicted
+* not_enough_information
+
+---
+
+## Project Structure
+
+```text
+project/
+
+├── dataset/
+│   ├── claims.csv
+│   ├── sample_claims.csv
+│   ├── user_history.csv
+│   ├── evidence_requirements.csv
+│   ├── images/
+│       ├── sample/
+│       └── test/
+│
+├── evaluation/
+│   └── evaluation_report.md
+│
+├── claim_parser.py
+├── image_analyzer.py
+├── quality_checker.py
+├── history_checker.py
+├── evidence_checker.py
+├── decision_engine.py
+├── main.py
+├── output.csv
+├── requirements.txt
+├── README.md
+```
+
+---
+
+## Pipeline
+
+### Step 1: Claim Extraction
+
+Input:
+
+* user_claim
+
+Output:
+
+* issue_type
+* object_part
+
+Example:
+
+Conversation:
+
+```text
+My car was hit yesterday.
+The front bumper now has a dent.
+```
+
+Extracted:
+
+```python
+issue_type = "dent"
+object_part = "front_bumper"
+```
+
+---
+
+### Step 2: Image Analysis
+
+For each submitted image:
+
+Determine:
+
+* Damage category
+* Object part
+* Confidence score
+
+Examples:
+
+```python
+dent
+scratch
+crack
+glass_shatter
+water_damage
+```
+
+---
+
+### Step 3: Image Quality Assessment
+
+Detect:
+
+* blurry_image
+* cropped_or_obstructed
+* low_light_or_glare
+* wrong_angle
+
+Images failing quality checks may lead to:
+
+```text
+not_enough_information
+```
+
+---
+
+### Step 4: Evidence Validation
+
+Read:
+
+```text
+dataset/evidence_requirements.csv
+```
+
+Verify whether the submitted images satisfy the required evidence standard.
+
+Output:
+
+```python
+evidence_standard_met=True
+```
+
+or
+
+```python
+evidence_standard_met=False
+```
+
+---
+
+### Step 5: User History Assessment
+
+Read:
+
+```text
+dataset/user_history.csv
+```
+
+Possible flags:
+
+* user_history_risk
+* manual_review_required
+
+History contributes only to risk assessment.
+
+Visual evidence remains the primary decision factor.
+
+---
+
+### Step 6: Decision Logic
+
+Decision rules:
+
+Supported
+
+* Claimed damage is visible
+* Evidence standard satisfied
+
+Contradicted
+
+* Claimed damage absent
+* Relevant object visible
+
+Not Enough Information
+
+* Blurry images
+* Missing evidence
+* Damage not visible
+
+---
+
+## Output Format
+
+Generated file:
+
+```text
+output.csv
+```
+
+Columns:
+
+```text
+user_id
+image_paths
+user_claim
+claim_object
+evidence_standard_met
+evidence_standard_met_reason
+risk_flags
+issue_type
+object_part
+claim_status
+claim_status_justification
+supporting_image_ids
+valid_image
+severity
+```
+
+---
+
+## Running the System
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run inference:
+
+```bash
+python main.py
+```
+
+Output:
+
+```text
+output.csv
+```
+
+---
+
+## Evaluation
+
+The system is evaluated using:
+
+```text
+dataset/sample_claims.csv
+```
+
+Metrics:
+
+* Claim status accuracy
+* Issue type accuracy
+* Object part accuracy
+* Evidence sufficiency accuracy
+
+Evaluation results are documented in:
+
+```text
+evaluation/evaluation_report.md
+```
+
+---
+
+## Assumptions
+
+* Images are considered the primary source of truth.
+* User history never overrides clear visual evidence.
+* Missing or poor-quality evidence results in conservative decisions.
+* Risk flags indicate additional review requirements but do not directly reject claims.
+
+---
+
+## Future Improvements
+
+Potential enhancements include:
+
+* Improved damage localization
+* Confidence calibration
+* Better image manipulation detection
+* Retrieval-augmented prompting
+* Batch image processing
+* Response caching
+* Cost optimization
+* Active manual review workflows

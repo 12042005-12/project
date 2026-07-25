@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: make-it-wear-it-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: make-it-wear-it
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+  api:
+    build:
+      context: .
+      target: api
+    container_name: make-it-wear-it-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://mongodb:27017/make-it-wear-it
+      CLIENT_URL: http://localhost:5173
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+    env_file:
+      - apps/api/.env
+
+  web:
+    build:
+      context: .
+      target: web
+    container_name: make-it-wear-it-web
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  app-network:
+    driver: bridge
