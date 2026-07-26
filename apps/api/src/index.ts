@@ -6,7 +6,18 @@ import pino from 'pino'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import dotenv from 'dotenv'
-
+import { connectDB } from './config/database'
+import authRoutes from './routes/auth.routes'
+import userRoutes from './routes/user.routes'
+import wardrobeRoutes from './routes/wardrobe.routes'
+import recommendationRoutes from './routes/recommendation.routes'
+import tryOnRoutes from './routes/tryon.routes'
+import savedOutfitsRoutes from './routes/saved-outfits.routes'
+import uploadRoutes from './routes/upload.routes'
+import supportRoutes from "./routes/support.routes";
+import aiRoutes from "./routes/ai.routes";
+import outfitRoutes from "./routes/outfit.routes";
+import stylistRoutes from "./routes/stylist.routes";
 dotenv.config()
 
 const app = express()
@@ -25,6 +36,7 @@ app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true,
 }))
+app.use("/uploads", express.static("uploads"));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -65,15 +77,18 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Make-It-Wear-It API is running' })
 })
 
-// API routes (to be added)
-// app.use('/api/auth', authRoutes)
-// app.use('/api/users', userRoutes)
-// app.use('/api/profiles', profileRoutes)
-// app.use('/api/wardrobe', wardrobeRoutes)
-// app.use('/api/recommendations', recommendationRoutes)
-// app.use('/api/tryon', tryOnRoutes)
-// app.use('/api/chat', chatRoutes)
-
+// API routes
+app.use('/api/auth', authRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/wardrobe', wardrobeRoutes)
+app.use('/api/recommendations', recommendationRoutes)
+app.use('/api/tryon', tryOnRoutes)
+app.use('/api/saved-outfits', savedOutfitsRoutes)
+app.use('/api/upload', uploadRoutes)
+app.use("/api/support", supportRoutes)
+app.use("/api/ai", aiRoutes);
+app.use("/api/outfits", outfitRoutes);
+app.use("/api/stylist", stylistRoutes);
 // Error handling middleware
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error(err)
@@ -86,6 +101,10 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 })
 
 const PORT = process.env.PORT || 5000
+
+void connectDB().catch((error) => {
+  logger.error({ error }, 'MongoDB connection failed; continuing without database persistence')
+})
 
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`)

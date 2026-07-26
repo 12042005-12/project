@@ -203,6 +203,28 @@ export function useDeleteSavedOutfit() {
     },
   });
 }
+export interface SupportTicket {
+  name: string;
+  email: string;
+  subject: string;
+  category: string;
+  message: string;
+}
+export function useCreateSupportTicket() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: SupportTicket) => {
+      const response = await api.post("/support", payload);
+      return response.data?.data || response.data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["support"],
+      });
+    },
+  });
+}
 
 export async function uploadClothing(formData: FormData) {
   const response = await api.post(wardrobeEndpoints.create, formData, {

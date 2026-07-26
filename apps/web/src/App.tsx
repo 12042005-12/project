@@ -21,16 +21,30 @@ import { SearchPage } from './pages/SearchPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { ProtectedRoute } from './components/protected-route';
+import SupportPage from "./pages/SupportPage";
+import AIFashionHistoryPage from "./pages/AIFashionHistoryPage";
+import OutfitGeneratorPage from "./pages/OutfitGeneratorPage";
+import VirtualTryOnPage from "./pages/VirtualTryOnPage";
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+  path="/virtual-try-on"
+  element={
+    <ProtectedRoute>
+      <VirtualTryOnPage />
+    </ProtectedRoute>
+  }
+/>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-otp" element={<OtpVerificationPage />} />
+        <Route path="/support" element={<SupportPage />} />
         <Route
           path="/dashboard"
           element={
@@ -39,6 +53,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/outfit-generator"
+  element={
+    <ProtectedRoute>
+      <OutfitGeneratorPage />
+    </ProtectedRoute>
+  }
+/>
+        <Route
+  path="/ai-history"
+  element={
+    <ProtectedRoute>
+      <AIFashionHistoryPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/profile"
           element={

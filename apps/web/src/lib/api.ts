@@ -49,8 +49,8 @@ api.interceptors.response.use(
         const refreshResponse = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
           refreshToken,
         });
-        const newAccessToken = refreshResponse.data?.token || refreshResponse.data?.data?.token;
-        const newRefreshToken = refreshResponse.data?.refreshToken || refreshResponse.data?.data?.refreshToken;
+        const newAccessToken = refreshResponse.data?.data?.accessToken || refreshResponse.data?.data?.token || refreshResponse.data?.token;
+        const newRefreshToken = refreshResponse.data?.data?.refreshToken || refreshResponse.data?.refreshToken;
 
         if (newAccessToken) {
           window.localStorage.setItem('accessToken', newAccessToken);
